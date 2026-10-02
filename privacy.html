@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Конфиденциальность — Линза</title>
+<meta name="description" content="Какие данные обрабатывает расширение Линза.">
+<meta name="robots" content="noindex">
+<meta property="og:title" content="Линза — что заложено в коэффициенте">
+<meta property="og:description" content="Какие данные обрабатывает расширение Линза.">
+<meta property="og:image" content="assets/board.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Crect width='128' height='128' rx='30' fill='%235b4be6'/%3E%3Ccircle cx='57' cy='57' r='30' fill='none' stroke='%23fff' stroke-width='10'/%3E%3Cpath d='M79.500 79.500 100 100' stroke='%23fff' stroke-width='12' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>html{-webkit-text-size-adjust:100%}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<style>
+  :root { --bg: #f7f7fa; --ink: #13131c; --muted: #5d6072; --line: #dcdce6; --accent: #5b4be6; --mark: #fff3c4; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #0f1017; --ink: #f0f1f6; --muted: #a4a8bb; --line: #2c2f40; --accent: #8f82ff; --mark: #4a3f10; color-scheme: dark; } }
+  :root[data-theme="dark"] { --bg: #0f1017; --ink: #f0f1f6; --muted: #a4a8bb; --line: #2c2f40; --accent: #8f82ff; --mark: #4a3f10; color-scheme: dark; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.65 "Golos Text", "Segoe UI", system-ui, sans-serif; }
+  main { max-width: 720px; margin: 0 auto; padding: 48px 20px 72px; }
+  a { color: var(--accent); }
+  h1 { font-size: 30px; line-height: 1.2; margin: 18px 0 8px; text-wrap: balance; }
+  h2 { font-size: 20px; margin: 34px 0 8px; }
+  p, li { color: var(--muted); }
+  .draft { padding: 12px 14px; border-radius: 10px; background: var(--mark); color: var(--ink); font-size: 15px; }
+  mark { background: var(--mark); color: var(--ink); padding: 0 4px; border-radius: 4px; }
+</style>
+<main>
+  <a href="index.html">← Линза</a>
+  <h1>Политика конфиденциальности</h1>
+  <p>Редакция от 2 октября 2026 года.</p>
+
+
+
+  <h2>Что расширение делает на странице</h2>
+  <p>Расширение читает страницу букмекера в вашем браузере: названия команд, турнир, счёт и коэффициенты. Расчёт шанса без маржи, маржи рынков и экспресса выполняется на вашем устройстве и никуда не отправляется.</p>
+
+  <h2>Что отправляется наружу</h2>
+  <ul>
+
+    <li>Когда вы нажимаете «Разобрать матч»: названия команд, вид спорта, турнир, текущий счёт, коэффициенты на исход матча и собранные открытые факты о командах. Запрос уходит на сервер Линзы и далее поставщику языковой модели. Если вы указали собственный API-ключ, запрос уходит поставщику напрямую.</li>
+
+    <li>Когда вы нажимаете «Сравнить цены» или «Разобрать матч»: запросы к открытым источникам (линии Fonbet и Бетсити, ESPN, bo3.gg) с названиями команд.</li>
+
+    <li>Вместе с запросом на разбор передаётся случайный идентификатор установки или лицензионный ключ — по нему считается дневной лимит.</li>
+
+  </ul>
+  <p>Пока вы не нажали одну из этих кнопок, расширение в сеть не обращается.</p>
+
+  <h2>Чего расширение не собирает</h2>
+  <p>Логины и пароли, баланс, купон, историю ставок, платёжные данные и историю браузера расширение не читает и не передаёт. Оно не делает ставок и не нажимает кнопки на сайте букмекера.</p>
+
+  <h2>Что хранится в браузере</h2>
+  <p>Настройки, положение панели, лицензионный или API-ключ, счётчик разборов за день и кэш последних разборов хранятся в локальном хранилище расширения на вашем устройстве. Удаление расширения стирает эти данные.</p>
+
+
+  <h2>Что хранится на сервере</h2>
+  <p>Лицензионные ключи со сроком действия и суточные счётчики разборов. Содержимое запросов на разбор сервер не сохраняет. Счётчики удаляются через двое суток.</p>
+
+
+  <h2>Ссылки на букмекеров</h2>
+  <p>Партнёрских и рекламных ссылок в расширении нет. Ссылки на страницах букмекера расширение не подменяет.</p>
+
+  <h2>Возраст</h2>
+  <p>Сервис предназначен только для лиц старше 18 лет.</p>
+
+  <h2>Изменения</h2>
+  <p>Новая редакция публикуется на этой странице с датой. </p>
+</main>
+
+</body>
+</html>

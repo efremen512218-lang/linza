@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Линза — что заложено в коэффициенте</title>
+<meta name="description" content="Линза — расширение для Chrome: показывает шанс без маржи и маржу букмекера прямо на странице линии. Без прогнозов и обещаний. 18+">
+<meta name="robots" content="noindex">
+<meta property="og:title" content="Линза — что заложено в коэффициенте">
+<meta property="og:description" content="Линза — расширение для Chrome: показывает шанс без маржи и маржу букмекера прямо на странице линии. Без прогнозов и обещаний. 18+">
+<meta property="og:image" content="assets/board.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Crect width='128' height='128' rx='30' fill='%235b4be6'/%3E%3Ccircle cx='57' cy='57' r='30' fill='none' stroke='%23fff' stroke-width='10'/%3E%3Cpath d='M79.500 79.500 100 100' stroke='%23fff' stroke-width='12' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>html{-webkit-text-size-adjust:100%}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Unbounded:wght@500;700&display=swap">
+<style>
+  /* Макет: левая колонка текста и живая «строка линии» справа; дальше — чередование скриншота и пояснения.
+     Единственный акцент — фиолетовая рамка самой Линзы, всё остальное спокойное. */
+  :root {
+    --bg: #f7f7fa;
+    --surface: #ffffff;
+    --sunken: #eeeef4;
+    --line: #dcdce6;
+    --ink: #13131c;
+    --muted: #5d6072;
+    --faint: #8b8fa3;
+    --accent: #5b4be6;
+    --accent-ink: #ffffff;
+    --accent-soft: rgba(91, 75, 230, 0.13);
+    --pos: #0b8a4d;
+    --neg: #c93636;
+    --board: #12143a;
+    --board-ink: #ffffff;
+    --display: "Unbounded", "Arial Black", "Segoe UI", sans-serif;
+    --body: "Golos Text", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+    --num: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+    --wrap: 1120px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f1017; --surface: #181a24; --sunken: #20222f; --line: #2c2f40; --ink: #f0f1f6; --muted: #a4a8bb; --faint: #73778c;
+      --accent: #8f82ff; --accent-ink: #0f1017; --accent-soft: rgba(143, 130, 255, 0.18); --pos: #45d08f; --neg: #ff7676;
+      --board: #1b1e4a; --board-ink: #ffffff; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1017; --surface: #181a24; --sunken: #20222f; --line: #2c2f40; --ink: #f0f1f6; --muted: #a4a8bb; --faint: #73778c;
+    --accent: #8f82ff; --accent-ink: #0f1017; --accent-soft: rgba(143, 130, 255, 0.18); --pos: #45d08f; --neg: #ff7676;
+    --board: #1b1e4a; --board-ink: #ffffff; color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 17px/1.6 var(--body);
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+  .wrap { max-width: var(--wrap); margin: 0 auto; padding-inline: 20px; }
+  h1, h2, h3 { margin: 0; text-wrap: balance; }
+  h1 { font: 700 clamp(29px, 4.1vw, 46px)/1.1 var(--display); letter-spacing: -0.02em; }
+  h2 { font: 700 clamp(24px, 3.4vw, 34px)/1.15 var(--display); letter-spacing: -0.015em; }
+  h3 { font: 600 19px/1.3 var(--body); }
+  p { margin: 0; }
+  .lead { color: var(--muted); font-size: clamp(17px, 2vw, 20px); max-width: 34em; }
+  .num { font-family: var(--num); font-variant-numeric: tabular-nums; }
+  .eyebrow { color: var(--accent); font: 600 13px/1 var(--body); letter-spacing: 0.08em; text-transform: uppercase; }
+
+  /* Шапка */
+  .top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  .top .wrap { display: flex; align-items: center; gap: 20px; min-height: 60px; }
+  .logo { display: flex; align-items: center; gap: 10px; font: 700 17px/1 var(--display); text-decoration: none; }
+  .logo svg { flex: none; }
+  .top nav { display: flex; gap: 22px; margin-left: auto; font-size: 15px; }
+  .top nav a { color: var(--muted); text-decoration: none; }
+  .top nav a:hover { color: var(--ink); }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 46px; padding: 0 20px; border: 1px solid transparent; border-radius: 12px; background: var(--accent); color: var(--accent-ink); font: 600 16px/1 var(--body); text-decoration: none; cursor: pointer; transition: transform .12s ease, filter .12s ease; }
+  .btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
+  .btn.ghost { background: transparent; border-color: var(--line); color: var(--ink); }
+  .btn.small { min-height: 38px; padding: 0 14px; font-size: 14.5px; border-radius: 10px; }
+  @media (max-width: 760px) { .top nav { display: none; } .top .btn { margin-left: auto; } }
+
+  /* Первый экран */
+  .hero { padding-block: clamp(36px, 7vw, 76px) clamp(36px, 6vw, 64px); }
+  .hero .wrap { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); gap: clamp(28px, 5vw, 64px); align-items: center; }
+  .hero-text { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
+  .cta { display: flex; flex-wrap: wrap; gap: 12px; }
+  .fine { color: var(--faint); font-size: 14px; }
+  @media (max-width: 900px) { .hero .wrap { grid-template-columns: minmax(0, 1fr); } }
+
+  /* Живая строка линии */
+  .board { min-width: 0; border-radius: 22px; background: var(--board); color: var(--board-ink); padding: 20px; box-shadow: 0 30px 60px -30px rgba(18, 20, 58, .55); }
+  .board-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+  .board-head b { font: 600 15px/1.2 var(--body); }
+  .board-head span { display: block; color: rgba(255, 255, 255, .6); font-size: 12.5px; font-weight: 400; }
+  .switch { display: inline-flex; align-items: center; gap: 9px; padding: 6px 10px 6px 12px; border: 1px solid rgba(255, 255, 255, .22); border-radius: 999px; background: transparent; color: #fff; font: 600 13px/1 var(--body); cursor: pointer; }
+  .switch i { position: relative; width: 30px; height: 18px; border-radius: 9px; background: rgba(255, 255, 255, .25); transition: background .15s ease; }
+  .switch i::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff; transition: transform .15s ease; }
+  .switch[aria-pressed="true"] i { background: #8f82ff; }
+  .switch[aria-pressed="true"] i::after { transform: translateX(12px); }
+  .market { display: grid; grid-template-columns: minmax(0, 104px) minmax(0, 1fr); gap: 10px; align-items: center; padding: 9px 0; border-top: 1px solid rgba(255, 255, 255, .1); }
+  .market > span { font-size: 13.5px; line-height: 1.25; color: rgba(255, 255, 255, .78); }
+  .market > span small { display: block; color: rgba(255, 255, 255, .45); font-size: 11.5px; }
+  .odds { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 8px; }
+  .odd { position: relative; height: 40px; border: 2px solid transparent; border-radius: 10px; background: #fff; color: #13131c; font: 700 15px/1 var(--num); cursor: default; transition: border-color .15s ease, box-shadow .15s ease; }
+  .odd::after { content: attr(data-chance); position: absolute; top: -9px; right: 6px; padding: 0 5px; border-radius: 5px; background: #6d5ef5; color: #fff; font: 700 10px/15px var(--body); opacity: 0; transform: translateY(3px); transition: opacity .15s ease, transform .15s ease; }
+  .board.on .odd.pick { border-color: #6d5ef5; box-shadow: 0 0 0 3px rgba(125, 110, 255, .4); }
+  .board.on .odd.pick::after, .board.on .odd:hover::after, .board.on .odd:focus-visible::after { opacity: 1; transform: none; }
+  .gauge { margin-top: 14px; padding: 13px 14px; border-radius: 13px; background: rgba(255, 255, 255, .08); font-size: 13.5px; line-height: 1.45; color: rgba(255, 255, 255, .8); min-height: 62px; }
+  .gauge b { color: #fff; font-family: var(--num); }
+  .board:not(.on) .gauge { color: rgba(255, 255, 255, .5); }
+
+  /* Блоки */
+  section { padding-block: clamp(40px, 7vw, 84px); }
+  .head { display: flex; flex-direction: column; gap: 12px; margin-bottom: clamp(24px, 4vw, 44px); max-width: 44em; }
+  .feature { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: clamp(22px, 4vw, 56px); align-items: center; }
+  .feature + .feature { margin-top: clamp(36px, 6vw, 72px); }
+  .feature.flip .shot { order: -1; }
+  .feature .text { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .feature .text p { color: var(--muted); }
+  .shot { min-width: 0; margin: 0; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); overflow: hidden; box-shadow: 0 24px 48px -32px rgba(19, 19, 28, .45); }
+  .shot img { display: block; width: 100%; height: auto; }
+  .shot figcaption { padding: 10px 14px; border-top: 1px solid var(--line); color: var(--faint); font-size: 13px; }
+  @media (max-width: 860px) { .feature { grid-template-columns: minmax(0, 1fr); } .feature.flip .shot { order: 0; } }
+
+  .proof { background: var(--surface); border-block: 1px solid var(--line); }
+  .proof-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(22px, 4vw, 56px); align-items: start; }
+  .proof-grid > div { min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+  .proof p { color: var(--muted); }
+  .table { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; }
+  table { width: 100%; border-collapse: collapse; font-size: 15.5px; }
+  th, td { padding: 12px 14px; text-align: right; white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; white-space: normal; }
+  thead th { color: var(--faint); font-weight: 600; font-size: 13px; border-bottom: 1px solid var(--line); }
+  tbody tr + tr td { border-top: 1px solid var(--line); }
+  td.num { font-weight: 700; }
+  .caption { color: var(--faint); font-size: 13.5px; }
+  @media (max-width: 860px) { .proof-grid { grid-template-columns: minmax(0, 1fr); } }
+
+  .nots { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; margin: 0; padding: 0; list-style: none; }
+  .nots li { padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+  .nots b { display: block; margin-bottom: 4px; }
+  .nots span { color: var(--muted); font-size: 15.5px; }
+
+  .plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 16px; }
+  .plan { display: flex; flex-direction: column; gap: 14px; padding: 24px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); }
+  .plan.main { border: 2px solid var(--accent); }
+  .plan .price { font: 700 34px/1 var(--display); letter-spacing: -0.02em; }
+  .plan .price small { font: 500 15px/1 var(--body); color: var(--muted); letter-spacing: 0; }
+  .plan ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 9px; color: var(--muted); font-size: 15.5px; }
+  .plan li { display: grid; grid-template-columns: 18px 1fr; gap: 8px; }
+  .plan li::before { content: "✓"; color: var(--pos); font-weight: 700; }
+  .plan .btn { margin-top: auto; }
+  .plan .caption { margin: auto 0 0; }
+  .plan .soon { margin-left: 6px; padding: 3px 8px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); font: 600 12px/1 var(--body); letter-spacing: .02em; vertical-align: middle; }
+
+  .books { display: flex; flex-wrap: wrap; gap: 10px; margin: 0; padding: 0; list-style: none; }
+  .books li { padding: 9px 14px; border: 1px solid var(--line); border-radius: 11px; background: var(--surface); font-weight: 600; font-size: 15.5px; }
+  .books li small { display: block; color: var(--faint); font-weight: 400; font-size: 12.5px; }
+
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin: 0; padding: 0; list-style: none; counter-reset: step; }
+  .steps li { counter-increment: step; padding: 20px; border-radius: 16px; background: var(--sunken); }
+  .steps li::before { content: counter(step); display: grid; place-items: center; width: 34px; height: 34px; margin-bottom: 12px; border-radius: 10px; background: var(--accent); color: var(--accent-ink); font: 700 15px/1 var(--num); }
+  .steps b { display: block; margin-bottom: 4px; }
+  .steps span { color: var(--muted); font-size: 15.5px; }
+  code { padding: 2px 6px; border-radius: 6px; background: var(--sunken); font: 500 14px/1.4 var(--num); }
+  .steps code { background: var(--surface); }
+
+  .faq { display: flex; flex-direction: column; gap: 10px; max-width: 46em; }
+  details { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+  summary { padding: 16px 18px; cursor: pointer; font-weight: 600; list-style: none; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "+"; float: right; color: var(--faint); font: 500 20px/1.2 var(--num); }
+  details[open] summary::after { content: "−"; }
+  details p { padding: 0 18px 18px; color: var(--muted); }
+
+  footer { padding-block: 36px 48px; border-top: 1px solid var(--line); color: var(--faint); font-size: 14px; }
+  footer .wrap { display: flex; flex-direction: column; gap: 12px; }
+  footer nav { display: flex; flex-wrap: wrap; gap: 6px 18px; color: var(--muted); }
+  .age { display: inline-grid; place-items: center; width: 38px; height: 38px; border: 2px solid var(--faint); border-radius: 50%; font: 700 13px/1 var(--num); color: var(--muted); }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="#top" aria-label="Линза">
+      <svg width="30" height="30" viewBox="0 0 128 128" aria-hidden="true"><rect width="128" height="128" rx="30" fill="#5b4be6"/><circle cx="57" cy="57" r="30" fill="none" stroke="#fff" stroke-width="10"/><path d="M79.500 79.500 100 100" stroke="#fff" stroke-width="12" stroke-linecap="round"/><path d="M44 59 54 69 71 48" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Линза
+    </a>
+    <nav aria-label="Разделы">
+      <a href="#how">Что видно</a>
+      <a href="#proof">Проверка</a>
+      <a href="#price">Тарифы</a>
+      <a href="#faq">Вопросы</a>
+    </nav>
+    <a class="btn small" href="#install">Установить</a>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-text">
+        <p class="eyebrow">Расширение для Chrome · 18+</p>
+        <h1>Видно, что заложено в&nbsp;коэффициенте</h1>
+        <p class="lead">Линза работает прямо на сайте букмекера. У каждой цифры она показывает шанс без маржи конторы, у каждого рынка — сколько контора берёт себе. Прогнозов и обещаний здесь нет.</p>
+        <div class="cta">
+          <a class="btn" href="#install">Установить бесплатно</a>
+          <a class="btn ghost" href="#how">Что я увижу</a>
+        </div>
+        <p class="fine">Winline, Fonbet, PARI, BetBoom, Лига Ставок, Бетсити, Leon, Мелбет, Олимп, Марафон</p>
+      </div>
+
+      <div class="board on" id="board" aria-label="Пример: строка линии с Линзой и без неё">
+        <div class="board-head">
+          <b>Франция — Италия<span>Лига наций, кэфы с живой страницы</span></b>
+          <button class="switch" id="lens-switch" type="button" aria-pressed="true"><span>Линза</span><i></i></button>
+        </div>
+        <div class="market" data-margin="5,6">
+          <span>Исход 1X2<small>осн. время</small></span>
+          <div class="odds">
+            <button class="odd pick" type="button" data-chance="66%">1.44</button>
+            <button class="odd" type="button" data-chance="19%">5.00</button>
+            <button class="odd" type="button" data-chance="15%">6.20</button>
+          </div>
+        </div>
+        <div class="market" data-margin="5,4">
+          <span>Тотал 3.5<small>меньше / больше</small></span>
+          <div class="odds">
+            <button class="odd pick" type="button" data-chance="55%">1.71</button>
+            <button class="odd" type="button" data-chance="45%">2.13</button>
+          </div>
+        </div>
+        <div class="market" data-margin="5,2">
+          <span>Обе забьют<small>да / нет</small></span>
+          <div class="odds">
+            <button class="odd pick" type="button" data-chance="59%">1.61</button>
+            <button class="odd" type="button" data-chance="41%">2.32</button>
+          </div>
+        </div>
+        <p class="gauge" id="gauge" aria-live="polite"></p>
+      </div>
+    </div>
+  </section>
+
+  <section id="how">
+    <div class="wrap">
+      <div class="head">
+        <p class="eyebrow">Что видно на странице</p>
+        <h2>Три вещи, которых на сайте конторы нет</h2>
+      </div>
+
+      <div class="feature">
+        <div class="text">
+          <h3>Шанс без маржи на каждом рынке</h3>
+          <p>Рамка стоит на самом вероятном исходе рынка, число — его шанс по линии, из которого убрана доля конторы. Наведите на любой кэф — увидите весь рынок и маржу.</p>
+          <p>Это не совет ставить. Это перевод коэффициента в проценты, которые можно сравнить с собственным мнением.</p>
+        </div>
+        <figure class="shot">
+          <img src="assets/board.png" alt="Страница матча Winline: на каждом рынке рамка и шанс в процентах" width="1280" height="760" loading="lazy">
+          <figcaption>Живая страница матча, Winline</figcaption>
+        </figure>
+      </div>
+
+      <div class="feature flip">
+        <div class="text">
+          <h3>Маржа рынков и цены других контор</h3>
+          <p>Вкладка «Маржа» сортирует рынки по тому, сколько контора забирает с каждой ставки. Кнопка «Сравнить цены» ставит рядом открытые линии других букмекеров и выделяет лучшую цену.</p>
+          <p>Экспресс считается честно: общий шанс и маржа, которая растёт с каждой ногой.</p>
+        </div>
+        <figure class="shot">
+          <img src="assets/scan.png" alt="Панель Линзы: список матчей с маржой и сравнение цен" width="1280" height="760" loading="lazy">
+          <figcaption>Список матчей с маржой, тёмная тема</figcaption>
+        </figure>
+      </div>
+
+      <div class="feature">
+        <div class="text">
+          <h3>Разбор, где каждый довод привязан к факту</h3>
+          <p>По кнопке Линза собирает открытые данные: последние матчи, таблицу, очные встречи, для Counter-Strike — рейтинг и составы. Модель видит только их и обязана ссылаться на номер факта.</p>
+          <p>Довод без ссылки или с числом, которого нет в данных, программа выбрасывает сама.</p>
+        </div>
+        <figure class="shot">
+          <img src="assets/analysis.png" alt="Панель Линзы с разбором: доводы со ссылками на факты" width="1280" height="1080" loading="lazy">
+          <figcaption>Разбор матча с источниками</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="proof" id="proof">
+    <div class="wrap proof-grid">
+      <div>
+        <p class="eyebrow">Проверка на сыгранных матчах</p>
+        <h2>Мы измерили, умеет ли модель обыгрывать линию</h2>
+        <p id="proof-text">Взяли <span class="num">99</span> сыгранных матчей пяти топ-лиг за сентябрь 2026 года. Модели дали только то, что было известно до игры, и оценку рынка. Потом сравнили с результатом.</p>
+        <p>Один лишний угаданный матч из 99 — это случайность, а ошибка вероятностей совпала с линией до третьего знака. Модель не точнее линии. Поэтому в Линзе нет слов «прогноз» и «проходимость», а разбор не двигает проценты: он показывает данные и то, чего в них не хватает.</p>
+      </div>
+      <div>
+        <div class="table">
+          <table>
+            <thead><tr><th>На проверочных матчах</th><th>Линия</th><th>Модель</th></tr></thead>
+            <tbody id="proof-rows">
+              <tr><td>Угадан исход</td><td class="num">48,5%</td><td class="num">49,5%</td></tr>
+              <tr><td>Ошибка вероятностей (Брайер, меньше — лучше)</td><td class="num">0,587</td><td class="num">0,587</td></tr>
+              <tr><td>Модель спорила с линией в 15 матчах. Оказалась права</td><td class="num">ожидалось 5,2</td><td class="num">5 раз</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="caption">Данные о матчах и коэффициентах — football-data.co.uk. Проверялся только футбол. Правила разбора после просмотра результатов не менялись. Полный отчёт и код проверки — в папке eval проекта.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="head">
+        <p class="eyebrow">Границы</p>
+        <h2>Чего Линза не делает</h2>
+      </div>
+      <ul class="nots">
+        <li><b>Не делает ставок</b><span>Расширение ничего не нажимает за вас и не имеет доступа к купону и балансу.</span></li>
+        <li><b>Не обещает плюс</b><span>Маржа конторы в среднем сильнее любого совета. Линза показывает её размер, а не способ её обойти.</span></li>
+        <li><b>Не следит за вами</b><span>Страница читается в вашем браузере. Наружу уходят только названия команд и кэфы, и только когда вы просите разбор или сравнение цен.</span></li>
+        <li><b>Не работает у нелегалов</b><span>Только букмекеры с российской лицензией. Зеркал и офшорных казино в списке нет.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="price">
+    <div class="wrap">
+      <div class="head">
+        <p class="eyebrow">Тарифы</p>
+        <h2>Главное — бесплатно</h2>
+        <p class="lead">Рамки, проценты, маржа и сравнение цен считаются в вашем браузере и ничего не стоят. Платная часть — только разборы, потому что каждый из них обращается к модели.</p>
+      </div>
+      <div class="plans">
+        <div class="plan">
+          <h3>Бесплатно</h3>
+          <p class="price">0 ₽</p>
+          <ul>
+            <li>Шанс без маржи на каждом рынке</li>
+            <li>Маржа рынков и матчей</li>
+            <li>Сравнение цен с открытыми линиями</li>
+            <li>Расчёт экспресса</li>
+            <li><span><span class="num" id="free-n">3</span> разбора в день</span></li>
+          </ul>
+          <a class="btn ghost" href="#install">Установить</a>
+        </div>
+        <div class="plan main">
+          <h3>Про <small class="soon">скоро</small></h3>
+          <p class="price"><span id="pro-price">299</span> ₽ <small>в месяц</small></p>
+          <ul>
+            <li>Всё из бесплатного</li>
+            <li><span><span class="num" id="pro-n">40</span> разборов в день</span></li>
+            <li>Разборы лайва по текущему счёту</li>
+            <li>Counter-Strike: рейтинг, составы, очные серии</li>
+            <li>Ключ действует на всех десяти конторах</li>
+          </ul>
+          <p class="caption">Продажи ещё не открыты: тариф заработает вместе с сервером разборов. Цена и состав могут уточниться.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="head">
+        <p class="eyebrow">Где работает</p>
+        <h2>Десять контор с лицензией</h2>
+      </div>
+      <ul class="books">
+        <li>Winline<small>линия, матч, лайв, статистика</small></li>
+        <li>Fonbet<small>линия, матч</small></li>
+        <li>PARI<small>линия</small></li>
+        <li>BetBoom<small>линия</small></li>
+        <li>Лига Ставок<small>линия</small></li>
+        <li>Бетсити<small>линия</small></li>
+        <li>Leon<small>линия</small></li>
+        <li>Мелбет<small>линия</small></li>
+        <li>Олимп<small>линия</small></li>
+        <li>Марафон<small>линия</small></li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="install">
+    <div class="wrap">
+      <div class="head">
+        <p class="eyebrow">Установка</p>
+        <h2>Две минуты, без регистрации</h2>
+      </div>
+      <ol class="steps">
+        <li><b>Скачайте архив</b><span><a href="linza-chrome-1.0.0.zip" data-download>linza-chrome-1.0.0.zip</a> — распакуйте в любую папку. Папку потом не удаляйте: Chrome читает расширение из неё.</span></li>
+        <li><b>Включите режим разработчика</b><span>Откройте <code>chrome://extensions</code> и переключатель «Режим разработчика» справа сверху.</span></li>
+        <li><b>Загрузите папку</b><span>Нажмите «Загрузить распакованное расширение» и выберите папку. Откройте сайт конторы — справа появится кнопка «Линза».</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="wrap">
+      <div class="head">
+        <p class="eyebrow">Вопросы</p>
+        <h2>Коротко о важном</h2>
+      </div>
+      <div class="faq">
+        <details>
+          <summary>Что значит «шанс без маржи»?</summary>
+          <p>Если сложить вероятности всех исходов рынка, заложенные в коэффициентах, получится больше 100%. Лишнее — это маржа конторы. Линза убирает её пропорционально и показывает, какой шанс остаётся на каждый исход.</p>
+        </details>
+        <details>
+          <summary>Рамка — это рекомендация?</summary>
+          <p>Нет. Рамка стоит на самом вероятном исходе по самой линии. Фаворит выигрывает чаще, но и платят за него меньше — на дистанции разницу съедает маржа.</p>
+        </details>
+        <details>
+          <summary>Почему разбор часто говорит «согласен с линией»?</summary>
+          <p>Потому что так и есть. Линия уже учитывает форму, таблицу и составы. Мы проверили это на сыгранных матчах и не стали делать вид, что модель знает больше рынка.</p>
+        </details>
+        <details>
+          <summary>Какие данные уходят с моего компьютера?</summary>
+          <p>Когда вы нажимаете «Разобрать матч» — названия команд, турнир и коэффициенты. Логины, баланс, купон и история ставок расширению недоступны и никуда не передаются.</p>
+        </details>
+        <details>
+          <summary>Нужен ли свой ключ к нейросети?</summary>
+
+          <p>Нет: бесплатные разборы и тариф «Про» идут через сервер Линзы. Свой API-ключ можно указать в настройках, если он у вас уже есть.</p>
+
+        </details>
+        <details>
+          <summary>Почему расширения нет в магазине Chrome?</summary>
+          <p>Магазин ограничивает расширения, связанные со ставками. Пока Линза ставится из архива; об изменениях напишем в Telegram-канале.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span class="age">18+</span>
+    <p>Линза — инструмент для чтения линии. Она не принимает ставки, не является букмекером и не гарантирует результат. Участие в азартных играх может привести к потере денег и к зависимости. Если игра перестала быть развлечением, остановитесь.</p>
+    <nav aria-label="Документы">
+      <a href="privacy.html">Конфиденциальность</a>
+      <a href="terms.html">Условия использования</a>
+      <a href="https://t.me/linza_odds" id="contact">Telegram-канал</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var board = document.getElementById('board');
+    var button = document.getElementById('lens-switch');
+    var gauge = document.getElementById('gauge');
+    var idle = 'Наведите на коэффициент: рамка стоит на самом вероятном исходе, число — шанс без маржи конторы.';
+    function say(text) { gauge.innerHTML = text; }
+    function reset() { say(board.classList.contains('on') ? idle : 'Без Линзы на странице только цифры. Сколько в них маржи — не видно.'); }
+    button.addEventListener('click', function () {
+      var on = !board.classList.contains('on');
+      board.classList.toggle('on', on);
+      button.setAttribute('aria-pressed', String(on));
+      reset();
+    });
+    board.querySelectorAll('.odd').forEach(function (odd) {
+      function show() {
+        if (!board.classList.contains('on')) return;
+        var margin = odd.closest('.market').getAttribute('data-margin');
+        say('Кэф <b>' + odd.textContent + '</b> — это шанс <b>' + odd.getAttribute('data-chance') + '</b> без маржи. Маржа конторы на этом рынке <b>' + margin + '%</b>.');
+      }
+      odd.addEventListener('mouseenter', show);
+      odd.addEventListener('focus', show);
+      odd.addEventListener('mouseleave', reset);
+      odd.addEventListener('blur', reset);
+    });
+    reset();
+  })();
+</script>
+
+</body>
+</html>
