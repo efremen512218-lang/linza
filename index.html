@@ -160,6 +160,10 @@
 
   .books { display: flex; flex-wrap: wrap; gap: 10px; margin: 0; padding: 0; list-style: none; }
   .books li { padding: 9px 14px; border: 1px solid var(--line); border-radius: 11px; background: var(--surface); font-weight: 600; font-size: 15.5px; }
+  .partner-box { margin-top: 18px; padding: 18px 20px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+  .partner-box p { margin: 0 0 10px; }
+  .partner-box code { padding: 2px 8px; border-radius: 6px; background: var(--accent-soft, rgba(109,94,245,.14)); font-weight: 700; }
+  .partner-box .small { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
   .books li small { display: block; color: var(--faint); font-weight: 400; font-size: 12.5px; }
 
   .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin: 0; padding: 0; list-style: none; counter-reset: step; }
@@ -413,6 +417,13 @@
       </ul>
     </div>
   </section>
+</p>
+        
+        <p class="small"> · 18+. Азартные игры могут вызывать зависимость. Линза не принимает ставки и не обещает выигрыш.</p>
+      </div>
+    </div>
+  </section>
+<!--end-->
 
   <section id="install">
     <div class="wrap">
@@ -421,7 +432,7 @@
         <h2>Две минуты, без регистрации</h2>
       </div>
       <ol class="steps">
-        <li><b>Скачайте архив</b><span><a href="linza-chrome-1.0.2.zip" data-download>linza-chrome-1.0.2.zip</a> — распакуйте в любую папку. Папку потом не удаляйте: Chrome читает расширение из неё.</span></li>
+        <li><b>Скачайте архив</b><span><a href="linza-chrome-1.0.3.zip" data-download>linza-chrome-1.0.3.zip</a> — распакуйте в любую папку. Папку потом не удаляйте: Chrome читает расширение из неё.</span></li>
         <li><b>Включите режим разработчика</b><span>Откройте <code>chrome://extensions</code> и переключатель «Режим разработчика» справа сверху.</span></li>
         <li><b>Загрузите папку</b><span>Нажмите «Загрузить распакованное расширение» и выберите папку. Откройте сайт конторы — справа появится кнопка «Линза».</span></li>
       </ol>
