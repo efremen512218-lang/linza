@@ -329,7 +329,7 @@
       if (s.forward && s.forward.games) {
         fw = Object.keys(s.forward.games).map(function (g) {
           var f = s.forward.games[g]; if (!f.model) return '<p class="caption">' + names[g] + ': форвард-тест ещё копится (' + f.pending + ' матчей ждут результата).</p>';
-          return '<p class="caption">' + names[g] + ', форвард-тест: сыграно ' + f.played + ', модель угадала ' + f.model.acc + '% (logloss ' + f.model.logloss + ')' + (f.fonbetLast ? '; линия Fonbet на тех же матчах — ' + f.fonbetLast.acc + '% (logloss ' + f.fonbetLast.logloss + ')' : '') + '.</p>';
+          return '<p class="caption">' + names[g] + ', форвард-тест: сыграно ' + f.played + ', модель угадала ' + f.model.acc + '% (logloss ' + f.model.logloss + ')' + (f.modelWithLine && f.fonbetLast ? '; на ' + f.fonbetLast.n + ' из них, где до начала была цена Fonbet, модель — ' + f.modelWithLine.acc + '% (logloss ' + f.modelWithLine.logloss + '), фаворит линии — ' + f.fonbetLast.acc + '% (logloss ' + f.fonbetLast.logloss + ')' : '') + '.</p>';
         }).join('');
       }
       var sc = s.scanner ? '<p class="caption">Сигналы «цена выше рынка»: открытых ' + s.scanner.open + ', закрыто за неделю ' + s.scanner.closedWeek + ', средний CLV за неделю ' + (s.scanner.clvWeek == null ? '—' : pct(s.scanner.clvWeek)) + ', всего закрыто ' + s.scanner.closedAll + '.</p>' : '';
