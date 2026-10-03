@@ -13,7 +13,11 @@
 <style>html{-webkit-text-size-adjust:100%}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Unbounded:wght@500;700&display=swap">
+<link rel="preconnect" href="https://185-72-145-3.sslip.io" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Unbounded:wght@500;700&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Unbounded:wght@500;700&display=swap"></noscript>
 <style>
   /* Макет: левая колонка текста и живая «строка линии» справа; дальше — чередование скриншота и пояснения.
      Единственный акцент — фиолетовая рамка самой Линзы, всё остальное спокойное. */
@@ -89,7 +93,7 @@
   .hero .wrap { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); gap: clamp(28px, 5vw, 64px); align-items: center; }
   .hero-text { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
   .cta { display: flex; flex-wrap: wrap; gap: 12px; }
-  .fine { color: var(--faint); font-size: 14px; }
+  .fine { color: var(--muted); font-size: 14px; }
   @media (max-width: 900px) { .hero .wrap { grid-template-columns: minmax(0, 1fr); } }
 
   /* Живая строка линии */
@@ -104,7 +108,7 @@
   .switch[aria-pressed="true"] i::after { transform: translateX(12px); }
   .market { display: grid; grid-template-columns: minmax(0, 104px) minmax(0, 1fr); gap: 10px; align-items: center; padding: 9px 0; border-top: 1px solid rgba(255, 255, 255, .1); }
   .market > span { font-size: 13.5px; line-height: 1.25; color: rgba(255, 255, 255, .78); }
-  .market > span small { display: block; color: rgba(255, 255, 255, .45); font-size: 11.5px; }
+  .market > span small { display: block; color: rgba(255, 255, 255, .62); font-size: 11.5px; }
   .odds { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 8px; }
   .odd { position: relative; height: 40px; border: 2px solid transparent; border-radius: 10px; background: #fff; color: #13131c; font: 700 15px/1 var(--num); cursor: default; transition: border-color .15s ease, box-shadow .15s ease; }
   .odd::after { content: attr(data-chance); position: absolute; top: -9px; right: 6px; padding: 0 5px; border-radius: 5px; background: #6d5ef5; color: #fff; font: 700 10px/15px var(--body); opacity: 0; transform: translateY(3px); transition: opacity .15s ease, transform .15s ease; }
@@ -124,7 +128,7 @@
   .feature .text p { color: var(--muted); }
   .shot { min-width: 0; margin: 0; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); overflow: hidden; box-shadow: 0 24px 48px -32px rgba(19, 19, 28, .45); }
   .shot img { display: block; width: 100%; height: auto; }
-  .shot figcaption { padding: 10px 14px; border-top: 1px solid var(--line); color: var(--faint); font-size: 13px; }
+  .shot figcaption { padding: 10px 14px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
   @media (max-width: 860px) { .feature { grid-template-columns: minmax(0, 1fr); } .feature.flip .shot { order: 0; } }
 
   .proof { background: var(--surface); border-block: 1px solid var(--line); }
@@ -270,7 +274,7 @@
           <p>Это не совет ставить. Это перевод коэффициента в проценты, которые можно сравнить с собственным мнением.</p>
         </div>
         <figure class="shot">
-          <img src="assets/board.png" alt="Страница матча Winline: на каждом рынке рамка и шанс в процентах" width="1280" height="760" loading="lazy">
+          <picture><source type="image/webp" srcset="assets/board-640.webp 640w, assets/board.webp 1280w" sizes="(max-width: 720px) 92vw, 640px"><img src="assets/board.png" alt="Страница матча Winline: на каждом рынке рамка и шанс в процентах" width="1280" height="760" loading="lazy" decoding="async"></picture>
           <figcaption>Живая страница матча, Winline</figcaption>
         </figure>
       </div>
@@ -282,7 +286,7 @@
           <p>Экспресс считается честно: общий шанс и маржа, которая растёт с каждой ногой.</p>
         </div>
         <figure class="shot">
-          <img src="assets/scan.png" alt="Панель Линзы: список матчей с маржой и сравнение цен" width="1280" height="760" loading="lazy">
+          <picture><source type="image/webp" srcset="assets/scan-640.webp 640w, assets/scan.webp 1280w" sizes="(max-width: 720px) 92vw, 640px"><img src="assets/scan.png" alt="Панель Линзы: список матчей с маржой и сравнение цен" width="1280" height="760" loading="lazy" decoding="async"></picture>
           <figcaption>Список матчей с маржой, тёмная тема</figcaption>
         </figure>
       </div>
@@ -294,7 +298,7 @@
           <p>Довод без ссылки или с числом, которого нет в данных, программа выбрасывает сама.</p>
         </div>
         <figure class="shot">
-          <img src="assets/analysis.png" alt="Панель Линзы с разбором: доводы со ссылками на факты" width="1280" height="1080" loading="lazy">
+          <picture><source type="image/webp" srcset="assets/analysis-640.webp 640w, assets/analysis.webp 1280w" sizes="(max-width: 720px) 92vw, 640px"><img src="assets/analysis.png" alt="Панель Линзы с разбором: доводы со ссылками на факты" width="1280" height="1080" loading="lazy" decoding="async"></picture>
           <figcaption>Разбор матча с источниками</figcaption>
         </figure>
       </div>
