@@ -407,46 +407,47 @@
             <li>Всё из бесплатного</li>
             <li><span><span class="num" id="pro-n">40</span> разборов в день</span></li>
             <li>Разборы лайва по текущему счёту</li>
-            <li>Counter-Strike и Dota 2: прогноз модели по картам, форме и очным встречам</li>
+            <li>Прогноз модели по CS, Dota 2, теннису и баскетболу с подписью точности</li>
             <li>Ключ действует на всех десяти конторах</li>
           </ul>
-          <a class="btn" href="https://t.me/linza_keys_bot" id="pro-link">Получить ключ в Telegram</a>
+          <a class="btn" href="https://t.me/linza_keys_bot?start=site" id="pro-link">Получить ключ в Telegram</a>
         </div>
         <div class="plan">
           <h3>Про на год</h3>
           <p class="price">2 490 ₽ <small>за 365 дней</small></p>
           <ul>
             <li>Всё из «Про»</li>
-            <li>Экономия 30% против помесячной оплаты</li>
+            <li>Экономия 31% против помесячной оплаты</li>
             <li>Один ключ на весь сезон</li>
           </ul>
-          <a class="btn ghost" href="https://t.me/linza_keys_bot">Получить в Telegram</a>
+          <a class="btn ghost" href="https://t.me/linza_keys_bot?start=site">Получить в Telegram</a>
         </div>
         <div class="plan">
           <h3>Макс</h3>
           <p class="price">790 ₽ <small>в месяц</small></p>
           <ul>
-            <li>Всё из «Про»</li>
+            <li>Всё из «Про», 100 разборов в день</li>
             <li>Полный список сигналов «цена выше рынка»</li>
             <li>Закрытый канал Edge: сигналы сразу, итоги по CLV каждую неделю</li>
           </ul>
-          <a class="btn ghost" href="https://t.me/linza_keys_bot">Получить в Telegram</a>
-          <p class="caption">Сканер запущен 3 октября 2026; статистика сигналов копится публично, первые итоги — через неделю.</p>
+          <a class="btn ghost" href="https://t.me/linza_keys_bot?start=site">Получить в Telegram</a>
+          <p class="caption">На год — 6 590 ₽. Сканер запущен 3 октября 2026; статистика сигналов копится публично, первые итоги — через неделю.</p>
         </div>
         <div class="plan">
           <h3>VIP</h3>
           <p class="price">2 990 ₽ <small>в месяц</small></p>
           <ul>
             <li>Всё из «Макс»</li>
-            <li>300 разборов в день, приоритет в очереди</li>
+            <li>300 разборов в день, при нагрузке — первым в очереди к модели</li>
             <li>Профили игроков и команд: теннис, баскетбол, CS, Dota 2</li>
             <li>Личный утренний дайджест по вашим видам спорта в Telegram</li>
             <li>Ответ владельца на вопрос в боте в течение дня</li>
           </ul>
-          <a class="btn ghost" href="https://t.me/linza_keys_bot">Получить в Telegram</a>
+          <p class="caption">На год — 24 990 ₽.</p>
+          <a class="btn ghost" href="https://t.me/linza_keys_bot?start=site">Получить в Telegram</a>
         </div>
       </div>
-      <p class="caption" style="margin-top:14px">Приглашённый вами друг получает скидку 20% на первый ключ, вы — на следующий. Ссылку даёт бот после покупки.</p>
+      <p class="caption" style="margin-top:14px">Приглашённый вами друг получает скидку 20% на первый ключ, вы — на следующий: ссылку даёт бот после покупки. Ключ можно подарить — в боте есть кнопка «Подарить ключ».</p>
     </div>
   </section>
 
@@ -474,6 +475,13 @@
         
         <p class="small"> · 18+. Азартные игры могут вызывать зависимость. Линза не принимает ставки и не обещает выигрыш.</p>
       </div>
+      <script>
+      // Показ блока — для доли переходов (CTR): не чаще раза в 6 часов с этого браузера, без данных о посетителе.
+      (function () {
+        try { var k = 'lz.pseen.site', t = Number(localStorage.getItem(k)) || 0; if (Date.now() - t < 216e5) return; localStorage.setItem(k, String(Date.now())); } catch (e) {}
+        fetch('https://185-72-145-3.sslip.io/v1/partners/seen?s=site&ids=', { mode: 'no-cors' }).catch(function () {});
+      })();
+      </script>
     </div>
   </section>
 <!--end-->
