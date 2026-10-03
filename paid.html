@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Оплата — Линза</title>
+<meta name="description" content="Оплата ключа Линзы.">
+<meta name="robots" content="noindex">
+<meta property="og:title" content="Линза — что заложено в коэффициенте">
+<meta property="og:description" content="Оплата ключа Линзы.">
+<meta property="og:image" content="assets/board.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Crect width='128' height='128' rx='30' fill='%235b4be6'/%3E%3Ccircle cx='57' cy='57' r='30' fill='none' stroke='%23fff' stroke-width='10'/%3E%3Cpath d='M79.500 79.500 100 100' stroke='%23fff' stroke-width='12' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>html{-webkit-text-size-adjust:100%}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<meta name="robots" content="noindex">
+<style>
+  :root { --bg: #f5f6fa; --card: #ffffff; --ink: #14161b; --muted: #555c6b; --line: #e1e4ea; --accent: #5b4be6; --pos: #0b8a4d; --neg: #c93636; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #0f1117; --card: #171a23; --ink: #eef0f6; --muted: #a4a8bb; --line: #2c3040; --accent: #8f82ff; --pos: #45d08f; --neg: #ff7676; color-scheme: dark; } }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.6 "Golos Text", "Segoe UI", system-ui, sans-serif; }
+  main { max-width: 640px; margin: 0 auto; padding: 48px 20px 72px; }
+  a { color: var(--accent); }
+  h1 { font-size: 28px; line-height: 1.2; margin: 18px 0 12px; }
+  p, li { color: var(--muted); }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; margin: 16px 0; }
+  .key { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .key code { font: 700 20px/1.3 "JetBrains Mono", Consolas, monospace; color: var(--ink); letter-spacing: .02em; word-break: break-all; }
+  button { font-family: inherit; font-size: 15px; font-weight: 600; line-height: 1; padding: 10px 14px; border-radius: 10px; border: 0; background: var(--accent); color: #fff; cursor: pointer; }
+  .ok { color: var(--pos); font-weight: 600; }
+  .bad { color: var(--neg); font-weight: 600; }
+</style>
+<main>
+  <a href="index.html">← Линза</a>
+  <h1>Оплата ключа Линзы</h1>
+  <div class="card" id="state"><p>Проверяю оплату…</p></div>
+  <div class="card" id="howto" hidden>
+    <p><b>Как включить:</b> откройте сайт любой конторы с Линзой → панель Линзы → значок настроек → поле «Ключ Линзы» → вставьте ключ → «Сохранить».</p>
+    <p>Чтобы тариф работал и в мини-приложении в Telegram, а напоминание о продлении пришло вовремя, отправьте ключ боту <a href="https://t.me/linza_keys_bot">https://t.me/linza_keys_bot</a>.</p>
+    <p id="receipt" hidden></p>
+    <p>Сохраните эту страницу или ключ: ссылка на страницу — ваш доступ к ключу. 18+</p>
+  </div>
+</main>
+<script>
+(function () {
+  var api = 'https://185-72-145-3.sslip.io';
+  var q = new URLSearchParams(location.search);
+  var order = q.get('order'), token = q.get('t');
+  var box = document.getElementById('state'), howto = document.getElementById('howto');
+  var started = Date.now();
+  function show(html) { box.innerHTML = html; }
+  if (!order || !token) { show('<p class="bad">В ссылке нет номера заказа.</p><p>Если вы оплатили, напишите в бот — продавец пришлёт ключ.</p>'); return; }
+  function check() {
+    fetch(api + '/v1/pay/status?order=' + encodeURIComponent(order) + '&t=' + encodeURIComponent(token)).then(function (r) { return r.json(); }).then(function (d) {
+      if (d.status === 'done') {
+        show('<p class="ok">Оплата прошла. Ваш ключ «' + d.title + '» до ' + d.until.split('-').reverse().join('.') + ':</p><div class="key"><code id="k"></code><button type="button" id="copy">Скопировать</button></div>');
+        document.getElementById('k').textContent = d.key;
+        document.getElementById('copy').onclick = function () { navigator.clipboard && navigator.clipboard.writeText(d.key); this.textContent = 'Скопировано'; };
+        var receipt = document.getElementById('receipt');
+        receipt.textContent = d.via === 'yoomoney' ? 'Чек самозанятого продавец пришлёт по запросу: напишите в Telegram-бот команду /paysupport и номер заказа ' + order + '.' : 'Чек ЮKassa формирует автоматически.';
+        receipt.hidden = false;
+        howto.hidden = false;
+      } else if (d.status === 'canceled') {
+        show('<p class="bad">Оплата не прошла или отменена.</p><p><a href="index.html#price">Вернуться к тарифам</a> и попробовать ещё раз.</p>');
+      } else if (d.error) {
+        show('<p class="bad">' + d.error + '</p><p>Если вы оплатили, напишите в бот — продавец пришлёт ключ.</p>');
+      } else if (Date.now() - started < 15 * 60 * 1000) {
+        show('<p>Ждём подтверждения оплаты от банка — обычно несколько секунд. Страница обновится сама.</p>');
+        setTimeout(check, 4000);
+      } else {
+        show('<p>Банк всё ещё не подтвердил оплату. Обновите страницу позже или напишите в бот — ключ не потеряется.</p>');
+      }
+    }).catch(function () { setTimeout(check, 6000); });
+  }
+  check();
+})();
+</script>
+
+</body>
+</html>
