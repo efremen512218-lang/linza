@@ -21,17 +21,19 @@
 <style>
   /* Макет: левая колонка текста и живая «строка линии» справа; дальше — чередование скриншота и пояснения.
      Единственный акцент — фиолетовая рамка самой Линзы, всё остальное спокойное. */
+  /* Цвета и шрифты — из design/tokens.json (node tools/tokens.mjs). Блоки между метками руками не править. */
   :root {
-    --bg: #f7f7fa;
+    /* tokens:light */
+    --bg: #f5f6fa;
     --surface: #ffffff;
-    --sunken: #eeeef4;
-    --line: #dcdce6;
-    --ink: #13131c;
-    --muted: #5d6072;
+    --sunken: #eef0f5;
+    --line: #e1e4ea;
+    --ink: #14161b;
+    --muted: #555c6b;
     --faint: #8b8fa3;
     --accent: #5b4be6;
     --accent-ink: #ffffff;
-    --accent-soft: rgba(91, 75, 230, 0.13);
+    --accent-soft: rgba(91, 75, 230, 0.14);
     --pos: #0b8a4d;
     --neg: #c93636;
     --board: #12143a;
@@ -39,19 +41,48 @@
     --display: "Unbounded", "Arial Black", "Segoe UI", sans-serif;
     --body: "Golos Text", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
     --num: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+    /* /tokens */
     --wrap: 1120px;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --bg: #0f1017; --surface: #181a24; --sunken: #20222f; --line: #2c2f40; --ink: #f0f1f6; --muted: #a4a8bb; --faint: #73778c;
-      --accent: #8f82ff; --accent-ink: #0f1017; --accent-soft: rgba(143, 130, 255, 0.18); --pos: #45d08f; --neg: #ff7676;
-      --board: #1b1e4a; --board-ink: #ffffff; color-scheme: dark;
+      /* tokens:dark */
+      --bg: #0f1117;
+      --surface: #171a23;
+      --sunken: #272b34;
+      --line: #2c3040;
+      --ink: #eef0f6;
+      --muted: #a4a8bb;
+      --faint: #73778c;
+      --accent: #8f82ff;
+      --accent-ink: #0f1017;
+      --accent-soft: rgba(143, 130, 255, 0.18);
+      --pos: #45d08f;
+      --neg: #ff7676;
+      --board: #1b1e4a;
+      --board-ink: #ffffff;
+      /* /tokens */
+      color-scheme: dark;
     }
   }
   :root[data-theme="dark"] {
-    --bg: #0f1017; --surface: #181a24; --sunken: #20222f; --line: #2c2f40; --ink: #f0f1f6; --muted: #a4a8bb; --faint: #73778c;
-    --accent: #8f82ff; --accent-ink: #0f1017; --accent-soft: rgba(143, 130, 255, 0.18); --pos: #45d08f; --neg: #ff7676;
-    --board: #1b1e4a; --board-ink: #ffffff; color-scheme: dark;
+    /* tokens:dark */
+    --bg: #0f1117;
+    --surface: #171a23;
+    --sunken: #272b34;
+    --line: #2c3040;
+    --ink: #eef0f6;
+    --muted: #a4a8bb;
+    --faint: #73778c;
+    --accent: #8f82ff;
+    --accent-ink: #0f1017;
+    --accent-soft: rgba(143, 130, 255, 0.18);
+    --pos: #45d08f;
+    --neg: #ff7676;
+    --board: #1b1e4a;
+    --board-ink: #ffffff;
+    /* /tokens */
+    color-scheme: dark;
   }
 
   * { box-sizing: border-box; }
