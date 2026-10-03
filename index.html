@@ -215,6 +215,9 @@
   .steps code { background: var(--surface); }
 
   .faq { display: flex; flex-direction: column; gap: 10px; max-width: 46em; }
+  .plan .btn ~ .btn { margin-top: 0; }
+  .pay-card { cursor: pointer; font-family: inherit; }
+  .pay-card:disabled { opacity: .6; cursor: wait; }
   details { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
   summary { padding: 16px 18px; cursor: pointer; font-weight: 600; list-style: none; }
   summary::-webkit-details-marker { display: none; }
@@ -446,7 +449,7 @@
             <li>Прогноз модели по CS, Dota 2, теннису и баскетболу с подписью точности</li>
             <li>Ключ действует на всех десяти конторах</li>
           </ul>
-          <a class="btn" href="https://t.me/linza_keys_bot?start=site" id="pro-link">Получить ключ в Telegram</a>
+          <a class="btn" href="https://t.me/linza_keys_bot?start=site" id="pro-link">Получить ключ в Telegram</a><button type="button" class="btn ghost pay-card" data-plan="pro" hidden>Картой на сайте</button>
         </div>
         <div class="plan">
           <h3>Про на год</h3>
@@ -456,7 +459,7 @@
             <li>Экономия 31% против помесячной оплаты</li>
             <li>Один ключ на весь сезон</li>
           </ul>
-          <a class="btn ghost" href="https://t.me/linza_keys_bot?start=site">Получить в Telegram</a>
+          <a class="btn ghost" href="https://t.me/linza_keys_bot?start=site">Получить в Telegram</a><button type="button" class="btn ghost pay-card" data-plan="year" hidden>Картой на сайте</button>
         </div>
         <div class="plan">
           <h3>Макс</h3>
@@ -467,7 +470,7 @@
             <li>Полный список сигналов «цена выше рынка»</li>
             <li>Закрытый канал Edge: сигналы сразу, итоги по CLV каждую неделю</li>
           </ul>
-          <a class="btn ghost" href="https://t.me/linza_keys_bot?start=site">Получить в Telegram</a>
+          <a class="btn ghost" href="https://t.me/linza_keys_bot?start=site">Получить в Telegram</a><button type="button" class="btn ghost pay-card" data-plan="max" hidden>Картой — месяц</button><button type="button" class="btn ghost pay-card" data-plan="maxyear" hidden>Картой — год</button>
           <p class="caption">Сканер запущен 3 октября 2026; статистика сигналов копится публично, первые итоги — через неделю.</p>
         </div>
         <div class="plan">
@@ -481,10 +484,11 @@
             <li>Личный утренний дайджест по вашим видам спорта в Telegram</li>
             <li>Ответ владельца на вопрос в боте в течение дня</li>
           </ul>
-          <a class="btn ghost" href="https://t.me/linza_keys_bot?start=site">Получить в Telegram</a>
+          <a class="btn ghost" href="https://t.me/linza_keys_bot?start=site">Получить в Telegram</a><button type="button" class="btn ghost pay-card" data-plan="vip" hidden>Картой — месяц</button><button type="button" class="btn ghost pay-card" data-plan="vipyear" hidden>Картой — год</button>
         </div>
       </div>
       <p class="caption" style="margin-top:14px">Приглашённый вами друг получает скидку 20% на первый ключ, вы — на следующий: ссылку даёт бот после покупки. Ключ можно подарить — в боте есть кнопка «Подарить ключ».</p>
+      <p class="caption" id="pay-note" role="status" aria-live="polite" hidden></p>
     </div>
   </section>
 
@@ -637,6 +641,44 @@
     </nav>
   </div>
 </footer>
+
+
+<script>
+  (function () {
+    var api = 'https://185-72-145-3.sslip.io'.replace(/\/+$/, '');
+    var buttons = document.querySelectorAll('.pay-card');
+    var note = document.getElementById('pay-note');
+    if (!api || !buttons.length || !window.fetch) return;
+    function say(text) { if (note) { note.textContent = text; note.hidden = !text; } }
+    fetch(api + '/v1/public/prices').then(function (r) { return r.json(); }).then(function (body) {
+      var pay = body && body.payments;
+      if (!pay || !(pay.card || pay.yoomoney)) return;
+      buttons.forEach(function (b) { b.hidden = false; });
+      say(pay.card
+        ? 'Картой, SberPay, T-Pay или по СБП через ЮKassa: после оплаты ключ появится на странице сам, чек сформируется автоматически. 18+'
+        : 'Картой любого банка или кошельком ЮMoney: после оплаты ключ появится на странице сам. 18+');
+    }).catch(function () {});
+    buttons.forEach(function (button) {
+      button.addEventListener('click', function () {
+        var label = button.textContent;
+        buttons.forEach(function (b) { b.disabled = true; });
+        button.textContent = 'Открываю оплату…';
+        say('');
+        fetch(api + '/v1/pay/create', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ plan: button.getAttribute('data-plan') }) })
+          .then(function (r) { return r.json().then(function (body) { return { ok: r.ok, body: body }; }); })
+          .then(function (res) {
+            if (res.ok && res.body && res.body.url) { window.location.href = res.body.url; return; }
+            throw new Error(res.body && res.body.error || 'Оплата сейчас недоступна — ключ можно купить в Telegram-боте.');
+          })
+          .catch(function (error) {
+            buttons.forEach(function (b) { b.disabled = false; });
+            button.textContent = label;
+            say(error && error.message && !/fetch|network/i.test(error.message) ? error.message : 'Сервер оплаты не ответил — попробуйте ещё раз или купите ключ в Telegram-боте.');
+          });
+      });
+    });
+  })();
+</script>
 
 <script>
   (function () {
